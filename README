@@ -7,7 +7,6 @@ To compile:
 (If compile under mac OS, please change '-std=c++0x' to '-std=c++11' in 'CMakeLists.txt')
 
 To run:
->cd makedir
 >sh run.sh
 
 (Please do not use '-n' so that the runs will be finished sooner)
