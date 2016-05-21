@@ -1,6 +1,6 @@
 To compile:
+>mkdir makedir
 >cd makedir
->rm -rf *
 >cmake ..
 >make
 
