@@ -201,17 +201,17 @@ void Clustering::learn_ground_state(SpeciesNetwork **species_network, Orthology 
     for(double temp=tempmax; temp >= tempmin; temp *= 0.9)
     {
         // stop SA if > 500 iteration without change of cost
-        if (cost_not_change > 500) break;
+        if (cost_not_change > 1000) break;
 
         // a "sweep" of the network does about 20 x as many changes as there are nodes overall
-        for (int i=0; i < 20*num_total_nodes; i++)
+        for (int i=0; i < 50*num_total_nodes; i++)
         {
             // counter for SA iterations, used to determine when to print log
             SA_counter++;
             /* stop for loop if more than 500 iteration without change of cost,
              here the counter 'cost_not_change' is the same as outer loop,
              which means once the inner loop break, the outer will also break */
-            if (cost_not_change > 500) break;
+            if (cost_not_change > 1000) break;
 
             // record the old cost
             double old_total_cost = current_total_cost;
@@ -297,7 +297,7 @@ void Clustering::learn_ground_state(SpeciesNetwork **species_network, Orthology 
 
                 /* any improvement less than this is not counted as an improvement,
                  here set to 0, all improvements are counted */
-                if (delta_total_cost < 1)
+                if (delta_total_cost < -1)
                     cost_not_change = 0;
 
                 // reset log size
