@@ -186,7 +186,7 @@ void Clustering::learn_ground_state(SpeciesNetwork **species_network, Orthology 
 {
     fprintf(stderr,"Called LearnGroundState\n");
     double tempmax = max_temp; // set start tempreture
-    double tempmin = tempmax/1000; // set end tempreture
+    double tempmin = tempmax/TEMPRETUREEND; // set end tempreture
 
     // count total number of nodes in all species
     int num_total_nodes = 0;
@@ -198,20 +198,20 @@ void Clustering::learn_ground_state(SpeciesNetwork **species_network, Orthology 
 
     /* simulated annealing (SA), each step = 0.9,
      loop until tempreture is 1000 times smaller */
-    for(double temp=tempmax; temp >= tempmin; temp *= 0.9)
+    for(double temp=tempmax; temp >= tempmin; temp *= TEMPRETURESTEPSIZE)
     {
         // stop SA if > 500 iteration without change of cost
-        if (cost_not_change > 1000) break;
+        if (cost_not_change > BADMOVETHRESHOLD) break;
 
         // a "sweep" of the network does about 20 x as many changes as there are nodes overall
-        for (int i=0; i < 50*num_total_nodes; i++)
+        for (int i=0; i < HOWMANYTIMESOFNETWORK*num_total_nodes; i++)
         {
             // counter for SA iterations, used to determine when to print log
             SA_counter++;
             /* stop for loop if more than 500 iteration without change of cost,
              here the counter 'cost_not_change' is the same as outer loop,
              which means once the inner loop break, the outer will also break */
-            if (cost_not_change > 1000) break;
+            if (cost_not_change > BADMOVETHRESHOLD) break;
 
             // record the old cost
             double old_total_cost = current_total_cost;
@@ -261,7 +261,7 @@ void Clustering::learn_ground_state(SpeciesNetwork **species_network, Orthology 
                 if (double(rand())/RAND_MAX >= exp(-delta_total_cost/temp))
                 {
                     // prev log
-                    if (SA_counter % 1000000 == 0 or show_log)
+                    if (SA_counter % HOWMANYITERTOSHOW == 0 or show_log)
                         fprintf(stderr, "REJECTED MOVE\t%g to %g at t %g, prob %g\n", old_total_cost, new_total_cost, temp, 1-exp(-delta_total_cost/temp));
 
                     // undo pertubation
@@ -276,7 +276,7 @@ void Clustering::learn_ground_state(SpeciesNetwork **species_network, Orthology 
                     current_total_cost = new_total_cost;
                     current_coexpress_cost = new_coexpress_cost;
 
-                    if (SA_counter % 1000000 == 0 or show_log)
+                    if (SA_counter % HOWMANYITERTOSHOW == 0 or show_log)
                         fprintf(stderr, "BAD MOVE\t%g to %g at t %g, prob %g\n", old_total_cost, new_total_cost, temp, exp(-delta_total_cost/temp)); // prev log
 
                     // reset counter for no change of cost
@@ -292,12 +292,12 @@ void Clustering::learn_ground_state(SpeciesNetwork **species_network, Orthology 
                 current_total_cost = new_total_cost;
                 current_coexpress_cost = new_coexpress_cost;
 
-                if (SA_counter % 1000000 == 0 or show_log)
+                if (SA_counter % HOWMANYITERTOSHOW == 0 or show_log)
                     fprintf(stderr, "GOOD MOVE\t%g to %g at t %g\n", old_total_cost, new_total_cost, temp); // prev log, print out good move
 
                 /* any improvement less than this is not counted as an improvement,
                  here set to 0, all improvements are counted */
-                if (delta_total_cost < -1)
+                if (delta_total_cost < 1)
                     cost_not_change = 0;
 
                 // reset log size
@@ -311,7 +311,7 @@ void Clustering::learn_ground_state(SpeciesNetwork **species_network, Orthology 
 
             }
             // print size of noise cluster
-            if (SA_counter % 1000000 == 0 or show_log)
+            if (SA_counter % HOWMANYITERTOSHOW == 0 or show_log)
             {
                 for (int spe = 0; spe<num_species; spe++)
                 {
@@ -872,9 +872,9 @@ int Clustering::Perturb(SpeciesNetwork **species_network, int numchanges = 1)
             node_assigned_cluster[spc][node] = newstate;
             changed_nodes[to_string(static_cast<long long>(spc)) + "." + to_string(static_cast<long long>(node))] = newstate;
 
-            if (SA_counter % 1000000 == 0 or show_log)
+            if (SA_counter % HOWMANYITERTOSHOW == 0 or show_log)
 //                fprintf(stderr,"Perturb spe %d, node %d, old %d, new %d\n",spc,node,oldstate,newstate); // prev log
-                fprintf(stderr,"Perturb spe %d, node %s, old %d, new %d\n",spc,species_network[spc]->uniqId_to_geneName[node].c_str(),oldstate,newstate); // prev log
+                fprintf(stderr,"Perturb spe %d, node %d, old %d, new %d\n",spc,node,oldstate,newstate); // prev log
 
 
             // record the change for later undo

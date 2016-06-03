@@ -50,7 +50,6 @@ int main (int argc, char * const argv[]) {
     char startclusfn[1024]; startclusfn[0] = 0;
     double max_temp = -1;
     bool has_noise_cluster = false;
-    double lambda = 1.0;
     while (argbase < argc)
     {
         // ground-truth clutering

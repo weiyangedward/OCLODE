@@ -8,11 +8,11 @@
 SpeciesNetwork::~SpeciesNetwork()
 {
     fprintf(stderr, "SpeciesNetwork destructor\n");
-    for (int i=0; i<num_nodes; i++)
-        delete[] network[i];
-    delete[] network;
+    // for (int i=0; i<num_nodes; i++)
+    //     delete[] network[i];
+    // delete[] network;
     node_adjList.clear();
-    uniqId_to_geneName.clear();
+    // uniqId_to_geneName.clear();
     geneName_to_uniqId.clear();
 }
 
@@ -38,13 +38,13 @@ SpeciesNetwork::SpeciesNetwork(char* network_file)
     sscanf(line, "%d", &num_nodes);
 
     /* init network matrix to 0s */
-    network = new double *[num_nodes];
-    for (int i=0; i<num_nodes; i++)
-    {
-        network[i] = new double[num_nodes];
-        for (int j=0; j<num_nodes; j++)
-            network[i][j] = 0;
-    }
+    // network = new double *[num_nodes];
+    // for (int i=0; i<num_nodes; i++)
+    // {
+    //     network[i] = new double[num_nodes];
+    //     for (int j=0; j<num_nodes; j++)
+    //         network[i][j] = 0;
+    // }
 
     /* init network adjacency list */
     for (int i=0; i<num_nodes;i++)
@@ -55,10 +55,12 @@ SpeciesNetwork::SpeciesNetwork(char* network_file)
 
      // a unique ID assigned each gene so that the all gene IDs will be mapped to 1,2,3,...,n
     /*====== read the rest of network file ======*/
+    // char *id1 = new char[LINELEN]; // buff for gene1
+    // char *id2 = new char[LINELEN]; // buff for gene2
     while (fgets(line, LINELEN, F))
     {
-        char *id1 = new char[LINELEN]; // buff for gene1
-        char *id2 = new char[LINELEN]; // buff for gene2
+        char id1[LINELEN];
+        char id2[LINELEN];
         double edge_weight; // edge weight
         // edge_weight = 1
         sscanf(line, "%s\t%s\t%lf",id1, id2, &edge_weight);
@@ -70,38 +72,52 @@ SpeciesNetwork::SpeciesNetwork(char* network_file)
         hash_gene_id(str_id2, network_file); // convert gene2
 
         /*====== build network using adj matrix and adj list =======*/
-        network[geneName_to_uniqId[str_id1]][geneName_to_uniqId[str_id2]] = edge_weight; // store edge weight between gene1 and gene2 in network adj matrix
+        // network[geneName_to_uniqId[str_id1]][geneName_to_uniqId[str_id2]] = edge_weight; // store edge weight between gene1 and gene2 in network adj matrix
         node_adjList[geneName_to_uniqId[str_id1]].push_back(geneName_to_uniqId[str_id2]); // store gene2 in the adj list of gene1, only do this for gene1 assuming that network file has both edges of: gene1->gene2 and gene2->gene1
     }
     fclose(F); // close file
 
 }
 
+// bool SpeciesNetwork::is_edge(int i, int j)
+// {
+//     if (i >= num_nodes || j >= num_nodes)
+//         return false;
+
+//     if (abs(network[i][j]) > edge_weight_threshold)
+//         return true;
+
+//     return false;
+// }
+
 bool SpeciesNetwork::is_edge(int i, int j)
 {
     if (i >= num_nodes || j >= num_nodes)
         return false;
-
-    if (abs(network[i][j]) > edge_weight_threshold)
-        return true;
-
+    
+    for (int k = 0; k<node_adjList[i].size();k++)
+    {
+        int gene = node_adjList[i][k];
+        if (gene == j)
+            return true;
+    }
     return false;
 }
 
-double SpeciesNetwork::get_edge_weight(int i, int j)
-{
-    if (i >= num_nodes || j >= num_nodes)
-        return false;
+// double SpeciesNetwork::get_edge_weight(int i, int j)
+// {
+//     if (i >= num_nodes || j >= num_nodes)
+//         return false;
 
-    return network[i][j];
-}
+//     return network[i][j];
+// }
 
 void SpeciesNetwork::hash_gene_id(string &gene_ID, char *network_file)
 {
     if (geneName_to_uniqId.find(gene_ID) == geneName_to_uniqId.end()) // if gene1 is not seen
     {
         fprintf(stderr,"Assigning id %d to node %s in species %s\n",unique_node, gene_ID.c_str(), network_file); // print out which gene is assigned what unique ID
-        uniqId_to_geneName[unique_node] = gene_ID; // create a new entry for (uniq_ID, gene_ID) in hashmap
+        // uniqId_to_geneName[unique_node] = gene_ID; // create a new entry for (uniq_ID, gene_ID) in hashmap
         geneName_to_uniqId[gene_ID] = unique_node; // create a new entry for (gene_ID, gene_ID) in hashmap
         unique_node++; // increase uniq_ID by 1
 

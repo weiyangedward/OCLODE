@@ -28,8 +28,8 @@ public:
     char species_name[LINELEN];
     unordered_map< string, int > geneName_to_uniqId; // (gene_ID, uniq_ID)
     vector< vector<int> > node_adjList; // adjacency list to store edges for each node
-    unordered_map< int, string > uniqId_to_geneName; // (uniq_ID, gene_ID)
-    double **network; // coexpress network of a species
+    // unordered_map< int, string > uniqId_to_geneName; // (uniq_ID, gene_ID)
+    // double **network; // coexpress network of a species
 
 /* methods */
 public:
@@ -39,7 +39,7 @@ public:
     bool is_edge(int i, int j);
 
 private:
-    double get_edge_weight(int i, int j);
+    // double get_edge_weight(int i, int j);
     void hash_gene_id(string &gene_ID, char *network_file);
 
 };
